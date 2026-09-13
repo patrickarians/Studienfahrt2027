@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kursfahrt Wahl-o-mat 2027</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .dates {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.95em;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .question {
+            margin-bottom: 40px;
+            display: none;
+        }
+
+        .question.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .answer-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .answer-btn {
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .answer-btn:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #eee;
+            margin-bottom: 30px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+        }
+
+        .result.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .result-header h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            background: #f5f7ff;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .result-details h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .detail-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .result-text {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .form-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .form-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-to-quiz {
+            background: #e0e0e0;
+            color: #333;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-quiz:hover {
+            background: #d0d0d0;
+        }
+
+        @media (max-width: 600px) {
+            .answer-group {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .question h2 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚌✈️ Kursfahrt Wahl-o-mat</h1>
+            <p>Finde heraus, welche Destination zu dir passt!</p>
+            <div class="dates">
+                <strong>Reisedatum:</strong> 29.08.2027 - 03.09.2027
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- Fragen -->
+            <div id="questionsContainer"></div>
+
+            <!-- Ergebnis -->
+            <div class="result" id="result">
+                <div class="result-header">
+                    <h2 id="resultTitle"></h2>
+                    <p id="resultSubtitle"></p>
+                </div>
+
+                <div class="result-details">
+                    <h3>📋 Reisedetails</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">Ziel:</span>
+                        <span class="detail-value" id="detailDestination"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Transportmittel:</span>
+                        <span class="detail-value" id="detailTransport"></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Kosten:</span>
+                        <span class="detail-value">ca. 500-550 €</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Dauer:</span>
+                        <span class="detail-value">5 Tage / 4 Nächte</span>
+                    </div>
+                </div>
+
+                <p class="result-text" id="resultText"></p>
+
+                <a href="https://forms.cloud.microsoft/e/DVPAfV1S4j" class="form-link" target="_blank">
+                    📝 Jetzt anmelden!
+                </a>
+
+                <br>
+
+                <button class="back-to-quiz" onclick="resetQuiz()">Nochmal von vorne</button>
+            </div>
+
+            <div id="buttonsContainer" class="buttons"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                question: "Wie viel Zeit zum Reisen hast du gerne?",
+                answers: [
+                    { text: "Kurze Anreise - lieber mehr Zeit vor Ort", brussels: 1, budapest: 0 },
+                    { text: "Längere Anreise ist okay - Teil des Abenteuers", brussels: 0, budapest: 1 }
+                ]
+            },
+            {
+                id: 2,
+                question: "Was ist dir wichtiger in einer Großstadt?",
+                answers: [
+                    { text: "Europäische Geschichte & Politik (Europaparlament, EU-Viertel)", brussels: 1, budapest: 0 },
+                    { text: "Kultur, Architektur & Thermalbäder", brussels: 0, budapest: 1 }
+                ]
+            },
+            {
+                id: 3,
+                question: "Wie ist deine Einstellung zu Flugreisen?",
+                answers: [
+                    { text: "Lieber Busfahrten - nachhaltiger & entspannter", brussels: 1, budapest: 0 },
+                    { text: "Flugreisen sind aufregend & zeiteffizient", brussels: 0, budapest: 1 }
+                ]
+            },
+            {
+                id: 4,
+                question: "Welche Aktivität reizt dich mehr?",
+                answers: [
+                    { text: "Museen, Schokolade, belgisches Bier & Comics", brussels: 1, budapest: 0 },
+                    { text: "Thermalbäder, Donau-Schifffahrt & Nachtleben", brussels: 0, budapest: 1 }
+                ]
+            },
+            {
+                id: 5,
+                question: "Wie exotisch soll deine Reise sein?",
+                answers: [
+                    { text: "Nahes, bekanntes Europa", brussels: 1, budapest: 0 },
+                    { text: "Ein anderes Land, andere Kultur & Sprache", brussels: 0, budapest: 1 }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let scores = { brussels: 0, budapest: 0 };
+        let answers = {};
+
+        function initQuiz() {
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = `question ${index === currentQuestion ? 'active' : ''}`;
+                questionDiv.id = `question-${index}`;
+
+                let answersHTML = '<div class="answer-group">';
+                q.answers.forEach((answer, answerIndex) => {
+                    const isSelected = answers[q.id] === answerIndex;
+                    answersHTML += `
+                        <button class="answer-btn ${isSelected ? 'selected' : ''}" 
+                                onclick="selectAnswer(${q.id}, ${answerIndex}, ${q.answers.length})">
+                            ${answer.text}
+                        </button>
+                    `;
+                });
+                answersHTML += '</div>';
+
+                questionDiv.innerHTML = `
+                    <div class="question-number">Frage ${index + 1} von ${questions.length}</div>
+                    <h2>${q.question}</h2>
+                    ${answersHTML}
+                `;
+                container.appendChild(questionDiv);
+            });
+
+            updateProgressBar();
+            renderButtons();
+        }
+
+        function selectAnswer(questionId, answerIndex, totalAnswers) {
+            answers[questionId] = answerIndex;
+
+            // Update button states
+            const buttons = document.querySelectorAll(`#question-${currentQuestion} .answer-btn`);
+            buttons.forEach((btn, idx) => {
+                btn.classList.toggle('selected', idx === answerIndex);
+            });
+
+            renderButtons();
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function renderButtons() {
+            const container = document.getElementById('buttonsContainer');
+            container.innerHTML = '';
+
+            if (currentQuestion > 0) {
+                const backBtn = document.createElement('button');
+                backBtn.className = 'btn btn-back';
+                backBtn.textContent = '← Zurück';
+                backBtn.onclick = previousQuestion;
+                container.appendChild(backBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'btn btn-next';
+            nextBtn.disabled = answers[questions[currentQuestion].id] === undefined;
+            
+            if (currentQuestion === questions.length - 1) {
+                nextBtn.textContent = 'Ergebnis anzeigen 🎯';
+            } else {
+                nextBtn.textContent = 'Weiter →';
+            }
+            
+            nextBtn.onclick = nextQuestion;
+            container.appendChild(nextBtn);
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showResult();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function showResult() {
+            // Calculate scores
+            scores = { brussels: 0, budapest: 0 };
+            
+            questions.forEach(q => {
+                const answerIndex = answers[q.id];
+                if (answerIndex !== undefined) {
+                    const answer = q.answers[answerIndex];
+                    scores.brussels += answer.brussels;
+                    scores.budapest += answer.budapest;
+                }
+            });
+
+            // Determine winner
+            const winner = scores.brussels > scores.budapest ? 'brussels' : 'budapest';
+
+            // Hide questions
+            document.getElementById('questionsContainer').style.display = 'none';
+            document.getElementById('buttonsContainer').innerHTML = '';
+
+            // Show result
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.add('active');
+
+            if (winner === 'brussels') {
+                document.getElementById('resultTitle').textContent = '🚌 Brüssel ist für dich!';
+                document.getElementById('resultSubtitle').textContent = 'Die europäische Hauptstadt ruft!';
+                document.getElementById('detailDestination').textContent = 'Brüssel, Belgien';
+                document.getElementById('detailTransport').textContent = 'Busfahrt von Düsseldorf';
+                document.getElementById('resultText').textContent = `
+                    Du möchtest Geschichte, Politik und europäische Kultur hautnah erleben! Brüssel ist die perfekte Wahl für dich. 
+                    Besuche das Europaparlament, erkunde die mittelalterliche Altstadt, genieße belgische Spezialitäten und tauche in die 
+                    Welt der Comics ein. Die entspannte Busfahrt gibt dir noch mehr Zeit, dich auf die Reise einzustimmen!
+                `;
+            } else {
+                document.getElementById('resultTitle').textContent = '✈️ Budapest ist für dich!';
+                document.getElementById('resultSubtitle').textContent = 'Das Paris der Donau erwartet dich!';
+                document.getElementById('detailDestination').textContent = 'Budapest, Ungarn';
+                document.getElementById('detailTransport').textContent = 'Flug von Düsseldorf';
+                document.getElementById('resultText').textContent = `
+                    Du suchst nach Abenteuer, neuen Kulturen und beeindruckender Architektur! Budapest ist genau dein Ziel. 
+                    Entspanne dich in den legendären Thermalbädern, fahre mit einem Schiff auf der Donau, erkunde das Parlament 
+                    und genieße das pulsierend Nachtleben. Der Flug bringt dich schnell an dein Ziel!
+                `;
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            scores = { brussels: 0, budapest: 0 };
+            answers = {};
+            
+            document.getElementById('questionsContainer').style.display = 'block';
+            document.getElementById('result').classList.remove('active');
+            
+            renderQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
